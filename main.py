@@ -13,7 +13,7 @@ class Movies(object):
         if len(args) == 0:
             print 'No Argument given'
             #TODO: raise exception or something
-            return False
+            return 
         
         if args[0] == '-d':
             return self.get_movies_from_directories(args[1:])
