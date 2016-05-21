@@ -6,9 +6,9 @@ import urllib
 from pprint import pprint
 
 
-class Movie(object):
+class Movies(object):
     
-    def __init__(*args):
+    def __init__(self, args):
         self.movies = []
         if len(args) == 0:
             print 'No Argument given'
@@ -16,15 +16,15 @@ class Movie(object):
             return False
         
         if args[0] == '-d':
-            return get_movies_from_directories(args[1:])
+            return self.get_movies_from_directories(args[1:])
         
-        return search_movie_names(args)
-
+        return self.search_movie_names(args)
     
     def get_movies_from_directories(self, dirs):
         #TODO: dirs is a list of all directories
         #handle errors if directories doesn't exist
         #look only for video formats maybe - mp4, avi, etc, etc
+        pass
 
     def search_movie_names(self, args):
         for item in args:
@@ -36,10 +36,10 @@ class Movie(object):
             try:
                 url_new = urljoin(url,bs.find(
                     'td', attrs={'class':'result_text'}).find('a').get('href'))
-                movie_dict = extract_movie_info(url_new)
+                movie_dict = self.extract_movie_info(url_new)
             except:
                 print ('No Result Found. searched: ', search_term, item)
-                movie_dict = extract_movie_info()
+                movie_dict = self.extract_movie_info()
 
             movie_dict['original_name'] = item
             movie_dict['search_term'] = search_term
