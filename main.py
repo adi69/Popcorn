@@ -1,5 +1,7 @@
 import requests
 import sys
+import os
+import re
 from urlparse import urljoin
 from bs4 import BeautifulSoup
 import urllib
@@ -16,15 +18,39 @@ class Movies(object):
             return 
         
         if args[0] == '-d':
-            return self.get_movies_from_directories(args[1:])
+            args = self.get_movies_from_directories(args[1:])
         
-        return self.search_movie_names(args)
+        self.search_movie_names(args)
     
     def get_movies_from_directories(self, dirs):
         #TODO: dirs is a list of all directories
         #handle errors if directories doesn't exist
         #look only for video formats maybe - mp4, avi, etc, etc
-        pass
+        result = []
+        for directory in dirs:
+            try:
+                os.chdir(os.path.expanduser(directory))
+            except Exception as e:
+                print Exception
+                continue
+
+            files = os.listdir('.')
+
+            for file_name in files:
+                if os.path.isfile(file_name):
+                    file_name = re.sub('[.][^.]*$','*', file_name)
+                result.append(self.__purify_name(file_name))
+                    
+        return result
+
+    def __purify_name(self, name):
+        print name,
+        year_match = re.search('\W([0-9]){4}\W', name)
+        year = name[year_match.start():year_match.end()] if year_match else ''
+        name = re.sub('\((.*)\)|\[(.*)\]','', name)
+        name = re.sub('\W',' ', name)
+        return name + year
+
 
     def search_movie_names(self, args):
         for item in args:
