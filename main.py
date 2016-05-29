@@ -2,6 +2,7 @@ import requests
 import sys
 import os
 import re
+import csv
 from urlparse import urljoin
 from bs4 import BeautifulSoup
 import urllib
@@ -21,6 +22,7 @@ class Movies(object):
             args = self.get_movies_from_directories(args[1:])
         
         self.search_movie_names(args)
+        self.to_csv()
     
     def get_movies_from_directories(self, dirs):
         #TODO: dirs is a list of all directories
@@ -44,10 +46,9 @@ class Movies(object):
         return result
 
     def __purify_name(self, name):
-        print name,
         year_match = re.search('\W([0-9]){4}\W', name)
         year = name[year_match.start():year_match.end()] if year_match else ''
-        name = re.sub('\((.*)\)|\[(.*)\]','', name)
+        name = re.sub('\((.*)\)|\[(.*)\]|\{(.*)\}','', name)
         name = re.sub('\W',' ', name)
         return name + year
 
@@ -81,7 +82,7 @@ class Movies(object):
 
         response = requests.get(url).content
         bs = BeautifulSoup(response, 'lxml')
-        name = bs.find('h1', attrs={'itemprop':'name'}).text
+        name = bs.find('h1', attrs={'itemprop':'name'}).text.encode('utf-8')
 
         try:
             rating = bs.find('span', attrs={'itemprop':'ratingValue'}).text
@@ -89,12 +90,12 @@ class Movies(object):
             rating = '-'
 
         try:
-            summary = bs.find('div', attrs={'class':'summary_text'}).text.strip()
+            summary = bs.find('div', attrs={'class':'summary_text'}).text.strip().encode('utf-8')
         except:
             summary = '-'
 
         try:
-            genre = bs.find('span', attrs={'itemprop':'genre'}).text
+            genre = bs.find('span', attrs={'itemprop':'genre'}).text.encode('utf-8')
         except:
             genre = '-'
 
@@ -104,6 +105,13 @@ class Movies(object):
                 'summary': summary,
                 'genre': genre,
         }
+
+    def to_csv(self):
+        f = csv.writer(open('movies_list.csv', 'wb+'))
+        f.writerow(['original_name','name', 'rating', 'genre', 'summary'])
+        for item in self.movies:
+            f.writerow([item['original_name'], item['name'], item['rating'],
+                    item['genre'], item['summary']])
 
 
 def main():
