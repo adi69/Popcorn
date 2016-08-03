@@ -58,7 +58,7 @@ class Movies(object):
             #TODO: purify_name(item)
             search_term = urllib.quote_plus(item)
             url = 'http://www.imdb.com/find?q=' + search_term + '&s=all'
-            bs = BeautifulSoup(requests.get(url).content, 'lxml')
+            bs = BeautifulSoup(requests.get(url).content, "html.parser")
 
             try:
                 url_new = urljoin(url,bs.find(
@@ -81,7 +81,7 @@ class Movies(object):
             return { 'name': '', 'rating': '', 'summary': '', 'genre': '', }
 
         response = requests.get(url).content
-        bs = BeautifulSoup(response, 'lxml')
+        bs = BeautifulSoup(response, "html.parser")
         name = bs.find('h1', attrs={'itemprop':'name'}).text.encode('utf-8')
 
         try:
